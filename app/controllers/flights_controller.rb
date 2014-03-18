@@ -7,4 +7,9 @@ class FlightsController < ApplicationController
     respond_with @flights
   end
 
+  def show
+    @flight = Flight.find params[:id]
+    respond_with @flight
+  end
+
 end

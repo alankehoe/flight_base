@@ -6,8 +6,8 @@ class Flight < ActiveRecord::Base
       flight.flight_radar_id = flight_id
       flight.registration_one = array[0]
       flight.registration_two = array[9]
-      flight.departure_airport = array[10]
-      flight.arrival_airport = array[11]
+      flight.departure_airport = array[11]
+      flight.arrival_airport = array[12]
       flight.aircraft_code = array[8]
       flight.flight_no = array[13]
       flight.call_sign = array[16]
