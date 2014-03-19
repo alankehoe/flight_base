@@ -39,12 +39,16 @@ class FlightRadarConnector
 
   def get_flights
     url = "http://#{@server_host}/zones/europe_all.js"
-    JSON.parse(open(url).read[/{.+}/]) rescue {}
+    opened = open(url)
+    read = opened.read[/{.+}/]
+    JSON.parse(read)
   end
 
   def get_flight_data(flight_id, _)
     url = "http://#{@server_host}/_external/planedata_json.1.4.php?f=#{flight_id}&callback=flight_data_service_cb&_=#{_}"
-    JSON.parse(open(url).read[/{.+}/]) rescue {}
+    opened = open(url)
+    read = opened.read[/{.+}/]
+    JSON.parse(read)
   end
 
   def get_server_host

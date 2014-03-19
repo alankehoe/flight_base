@@ -47,3 +47,5 @@ gem 'spring',        group: :development
 # gem 'debugger', group: [:development, :test]
 
 gem 'will_paginate', '~> 3.0'
+
+gem 'mysql2'

@@ -21,5 +21,11 @@ test:
   database: db/test.sqlite3
 
 production:
-  <<: *default
-  database: db/production.sqlite3
+  adapter: mysql2
+  encoding: utf8
+  database: flight_base
+  pool: 10
+  username: flight_base
+  password: empty
+  socket: /var/run/mysqld/mysqld.sock
+  reconnect: true
