@@ -11,7 +11,7 @@ class AddFlights < ActiveRecord::Migration
       t.string :flight_no
       t.string :call_sign
       t.string :airline
-      t.string :payload
+      t.text :payload
       t.integer :scheduled_departure
       t.integer :scheduled_arrival
       t.integer :departure_time
@@ -31,7 +31,7 @@ class AddFlights < ActiveRecord::Migration
       t.string :radar
       t.integer :vertical_speed
       t.integer :flight_id
-      t.string :payload
+      t.text :payload
 
       t.timestamps
     end

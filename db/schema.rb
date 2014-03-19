@@ -27,7 +27,7 @@ ActiveRecord::Schema.define(version: 20140316154028) do
     t.datetime "updated_at"
   end
 
-  add_index "airports", ["code"], name: "index_airports_on_code"
+  add_index "airports", ["code"], name: "index_airports_on_code", using: :btree
 
   create_table "flights", force: true do |t|
     t.string   "flight_radar_id"
@@ -40,7 +40,7 @@ ActiveRecord::Schema.define(version: 20140316154028) do
     t.string   "flight_no"
     t.string   "call_sign"
     t.string   "airline"
-    t.string   "payload"
+    t.text     "payload"
     t.integer  "scheduled_departure"
     t.integer  "scheduled_arrival"
     t.integer  "departure_time"
@@ -50,7 +50,7 @@ ActiveRecord::Schema.define(version: 20140316154028) do
     t.datetime "updated_at"
   end
 
-  add_index "flights", ["flight_radar_id"], name: "index_flights_on_flight_radar_id", unique: true
+  add_index "flights", ["flight_radar_id"], name: "index_flights_on_flight_radar_id", unique: true, using: :btree
 
   create_table "snapshots", force: true do |t|
     t.float    "latitude"
@@ -62,7 +62,7 @@ ActiveRecord::Schema.define(version: 20140316154028) do
     t.string   "radar"
     t.integer  "vertical_speed"
     t.integer  "flight_id"
-    t.string   "payload"
+    t.text     "payload"
     t.datetime "created_at"
     t.datetime "updated_at"
   end

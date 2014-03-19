@@ -1,6 +1,7 @@
 require 'net/http'
 require 'open-uri'
 require 'json'
+require 'pony'
 
 class FlightRadarConnector
 
@@ -11,24 +12,33 @@ class FlightRadarConnector
 
   def start
     interval_every @interval do
-      @server_host = get_server_host
-      get_flights.each do |flight_id, flight_data|
-        departure_airport, arrival_airport = Airport.by_airport(flight_data[11]), Airport.by_airport(flight_data[12])
-        trackable = flight_in_europe? departure_airport, arrival_airport
-        next unless trackable
-        flight = Flight.where(:flight_radar_id => flight_id).first
-        if flight
-          snapshot = Snapshot.create_with_data flight_id, flight_data
-          snapshot.save!
-          puts "Existing Flight #{flight_id}"
-        else
-          detailed_flight_data = get_flight_data flight_id, flight_data[10]
-          flight = Flight.create_with_data flight_id, flight_data, detailed_flight_data
-          flight.save!
-          snapshot = Snapshot.create_with_data flight_id, flight_data
-          snapshot.save!
-          puts "New Flight #{flight_id}"
+      begin
+        @server_host = get_server_host
+        get_flights.each do |flight_id, flight_data|
+          departure_airport, arrival_airport = Airport.by_airport(flight_data[11]), Airport.by_airport(flight_data[12])
+          trackable = flight_in_europe? departure_airport, arrival_airport
+          next unless trackable
+          flight = Flight.where(:flight_radar_id => flight_id).first
+          if flight
+            snapshot = Snapshot.create_with_data flight_id, flight_data
+            snapshot.save!
+            Rails.logger.info "Existing Flight #{flight_id}"
+          else
+            begin
+              detailed_flight_data = get_flight_data flight_id, flight_data[10]
+              flight = Flight.create_with_data flight_id, flight_data, detailed_flight_data
+              flight.save!
+              snapshot = Snapshot.create_with_data flight_id, flight_data
+              snapshot.save!
+              Rails.logger.info "New Flight #{flight_id}"
+            rescue
+              Rails.logger.warn "Broke with Flight #{flight_id}"
+            end
+          end
         end
+      rescue
+        Rails.logger.fatal 'something really broke!!'
+        Pony.mail(:to => 'tsov@me.com', :from => 'tsov@me.com', :subject => 'flight base :/', :body => 'Please have a quick look man!!')
       end
     end
   end
@@ -65,10 +75,10 @@ class FlightRadarConnector
   def interval_every(seconds)
     count = 1
     while true do
-      puts "Interval #{count} | Time: #{Time.now}"
+      Rails.logger.info "Interval #{count} | Time: #{Time.now}"
       yield
-      puts "waiting for #{seconds} seconds"
-      puts "Time: #{Time.now}"
+      Rails.logger.info "waiting for #{seconds} seconds"
+      Rails.logger.info "Time: #{Time.now}"
       sleep seconds
       count += 1
     end
