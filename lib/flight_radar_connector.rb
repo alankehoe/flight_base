@@ -38,9 +38,9 @@ class FlightRadarConnector
         end
       rescue
         Rails.logger.fatal 'something really broke!!'
-        Pony.mail(:to => 'tsov@me.com', :from => 'tsov@me.com', :subject => 'flight base :/', :body => 'Please have a quick look man!!')
       end
     end
+    Pony.mail(:to => 'tsov@me.com', :from => 'tsov@me.com', :subject => 'flight base :/', :body => 'Please have a quick look man!!')
   end
 
   def flight_in_europe?(departure_airport, arrival_airport)
