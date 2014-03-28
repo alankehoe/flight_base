@@ -1,6 +1,6 @@
 class Snapshot < ActiveRecord::Base
 
-  belongs_to :flight
+  belongs_to :flight, :foreign_key => :flight_id, :primary_key => :flight_radar_id, :class_name => 'Flight'
 
   class << self
     def create_with_data(flight_id, array)

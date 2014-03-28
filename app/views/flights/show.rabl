@@ -1,0 +1,20 @@
+object @flight => :flight
+
+attributes :id,
+           :flight_radar_id,
+           :registration_one,
+           :registration_two,
+           :aircraft_code,
+           :aircraft_name,
+           :departure_airport,
+           :arrival_airport,
+           :flight_no,
+           :call_sign,
+           :airline,
+           :payload,
+           :proper_scheduled_departure,
+           :proper_scheduled_arrival,
+           :proper_departure_time,
+           :proper_arrival_time,
+           :proper_eta,
+           :created_at
