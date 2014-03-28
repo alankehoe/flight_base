@@ -39,28 +39,50 @@ class Flight < ActiveRecord::Base
   end
 
   def proper_scheduled_departure
-    Time.at self.scheduled_departure
+    @proper_scheduled_departure ||= Time.at self.scheduled_departure
   end
 
   def proper_scheduled_arrival
-    Time.at self.scheduled_arrival
+    @proper_scheduled_arrival ||= Time.at self.scheduled_arrival
   end
 
   def proper_departure_time
-    Time.at self.departure_time
+    @proper_departure_time ||= Time.at self.departure_time
   end
 
   def proper_arrival_time
-    Time.at self.arrival_time
+    @proper_arrival_time ||= Time.at self.arrival_time
   end
 
   def proper_eta
-    Time.at self.eta
+    @proper_eta ||= Time.at self.eta
+  end
+
+  def proper_scheduled_departure?
+    !self.scheduled_departure.nil? and self.scheduled_departure.class.to_s == 'Fixnum' && self.scheduled_departure != 0
+  end
+
+  def proper_scheduled_arrival?
+    !self.scheduled_arrival.nil? and self.scheduled_arrival.class.to_s == 'Fixnum' && self.scheduled_arrival != 0
+  end
+
+  def proper_departure_time?
+    !self.departure_time.nil? and self.departure_time.class.to_s == 'Fixnum' && self.departure_time != 0
+  end
+
+  def proper_arrival_time?
+    !self.arrival_time.nil? and self.arrival_time.class.to_s == 'Fixnum' && self.arrival_time != 0
   end
 
   def in_time?(snapshot)
-    if self.departure_time and self.arrival_time
-      (self.proper_departure_time..self.proper_arrival_time).cover?(snapshot.created_at)
+    if proper_departure_time? && proper_arrival_time? && proper_scheduled_departure? && proper_scheduled_arrival?
+      (self.proper_departure_time-60..self.proper_arrival_time+60).cover?(snapshot.created_at) || (self.proper_scheduled_departure..self.proper_scheduled_arrival).cover?(snapshot.created_at)
+    elsif proper_departure_time? && proper_arrival_time?
+      (self.proper_departure_time-60..self.proper_arrival_time+60).cover?(snapshot.created_at)
+    elsif proper_departure_time? && proper_scheduled_arrival?
+      (self.proper_departure_time-60..self.proper_scheduled_arrival+60).cover?(snapshot.created_at)
+    elsif proper_scheduled_departure? and proper_arrival_time?
+      (self.proper_scheduled_departure-60..self.proper_scheduled_arrival+60).cover?(snapshot.created_at)
     end
   end
 

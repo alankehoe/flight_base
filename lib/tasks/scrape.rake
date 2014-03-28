@@ -1,5 +1,6 @@
 require Rails.root + 'lib/flight_radar_connector'
 require Rails.root + 'lib/airport_connector'
+require 'pp'
 
 namespace :scrape do
   desc "Scrape data from FlightRadar24"
@@ -19,33 +20,41 @@ namespace :scrape do
     ok_count = 0
     too_many_count = 0
     too_little_count = 0
-    count = 0
     recovered_flights = Set.new
-    while (snapshots = Snapshot.offset(count).limit(100)).size > 0
-      snapshots.each do |snapshot|
-        begin
-          flights = Flight.find_by_snapshot(snapshot)
-          if flights.size == 1
-            ok_count += 1
-            recovered_flights << flights.first
-            snapshot.flight_id = flights.first.flight_radar_id
-            snapshot.save!
-          elsif flights.size == 0
-            too_little_count += 1
-          else
-            too_many_count += 1
-          end
-        rescue
-          puts 'rescued'
-        ensure
-          puts "perfect:  #{ok_count}"
-          puts "too little: #{too_little_count}"
-          puts "too many: #{too_many_count}"
-          puts "recovered flights: #{recovered_flights.size}"
+    Snapshot.where("`flight_id`='2'").find_each do |snapshot|
+      begin
+        puts '----------------'
+        flights = Flight.find_by_snapshot(snapshot)
+        pp snapshot
+        flights.each do |flight|
+          puts '--'
+          puts "Flight id: #{flight.id}"
+          puts "Scheduled Dep: #{flight.proper_scheduled_departure}"
+          puts "Scheduled Arr: #{flight.proper_scheduled_arrival}"
+          puts "Dep: #{flight.proper_departure_time}"
+          puts "Arr: #{flight.proper_arrival_time}"
+          pp flight
+          puts '--'
         end
+        if flights.size == 1
+          ok_count += 1
+          recovered_flights << flights.first
+          snapshot.flight_id = flights.first.flight_radar_id
+          snapshot.save!
+        elsif flights.size == 0
+          too_little_count += 1
+        else
+          too_many_count += 1
+        end
+        puts '----------------'
+      rescue
+        puts 'rescued'
+      ensure
+        puts "perfect:  #{ok_count}"
+        puts "too little: #{too_little_count}"
+        puts "too many: #{too_many_count}"
+        puts "recovered flights: #{recovered_flights.size}"
       end
-      puts count
-      count += 100
     end
     puts "perfect:  #{ok_count}"
     puts "too little: #{too_little_count}"
