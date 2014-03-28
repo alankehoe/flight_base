@@ -40,6 +40,7 @@ namespace :scrape do
           ok_count += 1
           recovered_flights << flights.first
           snapshot.flight_id = flights.first.flight_radar_id
+          snapshot.dodgy = true
           snapshot.save!
         elsif flights.size == 0
           too_little_count += 1
