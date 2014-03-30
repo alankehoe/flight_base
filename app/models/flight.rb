@@ -36,26 +36,100 @@ class Flight < ActiveRecord::Base
       end
       result
     end
+
+    def all_filtered
+      Flight.where("flights.scheduled_departure NOT IN (0) AND flights.scheduled_arrival NOT IN (0) AND flights.flight_no IS NOT NULL AND flights.call_sign IS NOT NULL AND flights.aircraft_code IS NOT NULL AND (SELECT COUNT(*) FROM `snapshots` WHERE snapshots.flight_id=flights.flight_radar_id AND snapshots.dodgy IS NULL) > 20")
+    end
+  end
+
+  def proper_snapshots
+    @proper_snapshots ||= self.snapshots
+  end
+
+  def average_speed
+    sum = 0
+    proper_snapshots.each do |snapshot|
+      sum += snapshot.speed
+    end
+    if sum == 0
+      sum
+    else
+      sum / proper_snapshots.size
+    end
+  end
+
+  def average_altitude
+    sum = 0
+    proper_snapshots.each do |snapshot|
+      sum += snapshot.altitude
+    end
+    if sum == 0
+      sum
+    else
+      sum / proper_snapshots.size
+    end
+  end
+
+  def proper?
+    proper_snapshots.size > 15
+  end
+
+  def on_time?
+    (self.proper_scheduled_arrival-60*3..self.proper_scheduled_arrival+60*3).cover?(self.actual_departure)
+  end
+
+  def late?
+    actual_arrival > self.proper_scheduled_arrival+60*3
+  end
+
+  def early?
+    actual_arrival < self.proper_scheduled_arrival-60*3
+  end
+
+  def state
+    return 'late' if self.late?
+    return 'early' if self.early?
+    return 'on_time' if self.on_time?
+  end
+
+  def actual_departure
+    proper_snapshots.first.created_at
+  end
+
+  def actual_arrival
+    proper_snapshots.last.created_at
+  end
+
+  def proper_payload
+    eval(self.payload)
+  end
+
+  def proper_departure_airport
+    @proper_departure_airport ||= Airport.find_by_code self.departure_airport
+  end
+
+  def proper_arrival_airport
+    @proper_arrival_airport ||= Airport.find_by_code self.arrival_airport
   end
 
   def proper_scheduled_departure
-    @proper_scheduled_departure ||= Time.at self.scheduled_departure
+    @proper_scheduled_departure ||= Time.at self.scheduled_departure || 0
   end
 
   def proper_scheduled_arrival
-    @proper_scheduled_arrival ||= Time.at self.scheduled_arrival
+    @proper_scheduled_arrival ||= Time.at self.scheduled_arrival || 0
   end
 
   def proper_departure_time
-    @proper_departure_time ||= Time.at self.departure_time
+    @proper_departure_time ||= Time.at self.departure_time || 0
   end
 
   def proper_arrival_time
-    @proper_arrival_time ||= Time.at self.arrival_time
+    @proper_arrival_time ||= Time.at self.arrival_time || 0
   end
 
   def proper_eta
-    @proper_eta ||= Time.at self.eta
+    @proper_eta ||= Time.at self.eta || 0
   end
 
   def proper_scheduled_departure?

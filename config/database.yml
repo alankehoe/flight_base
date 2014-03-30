@@ -15,7 +15,7 @@ development:
   database: flight_base
   pool: 10
   username: flight_base
-  password: empty
+  password: computing
   host: localhost
   reconnect: true
 

@@ -11,4 +11,5 @@ attributes :id,
            :vertical_speed,
            :flight_id,
            :payload,
-           :created_at
+           :created_at,
+           :dodgy

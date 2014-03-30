@@ -1,3 +1,3 @@
-collection @flights, :root => 'flights', :object_root => ''
+collection @flights, :root => @pages, :object_root => ''
 
 extends 'flights/show'

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140328162114) do
+ActiveRecord::Schema.define(version: 20140330154426) do
 
   create_table "airports", force: true do |t|
     t.string   "name"
@@ -67,5 +67,7 @@ ActiveRecord::Schema.define(version: 20140328162114) do
     t.datetime "updated_at"
     t.boolean  "dodgy"
   end
+
+  add_index "snapshots", ["flight_id"], name: "index_snapshots_on_flight_id", using: :btree
 
 end

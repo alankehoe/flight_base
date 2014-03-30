@@ -1,0 +1,50 @@
+<div class="container">
+    <div class="row">
+        <div class="col-lg-12">
+            <div ng-if="pending" class="text-center">
+                <i class="fa fa-4x fa-spinner fa-spin"></i>
+            </div>
+            <hr>
+            <div ng-repeat="flight in flights">
+                <a href="#/flights/{{flight.id}}" style="display: block;">
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <h1># {{flight.id}} | {{flight.airline}}</h1>
+                            <h3><span class="label label-primary">{{flight.flight_no}}</span> / <span class="label label-info">{{flight.call_sign}}</span></h3>
+
+                        </div>
+                        <div class="col-lg-6 text-right">
+                            <p>Scheduled Departure: <strong>{{flight.scheduled_departure | date:'medium'}}</strong></p>
+                            <p>Scheduled Arrival: <strong>{{flight.scheduled_arrival | date:'medium'}}</strong></p>
+                            <!--<p>Departure: <strong>{{flight.scheduled_departure | date:'medium'}}</strong></p>-->
+                            <!--<p>Arrival: <strong>{{flight.scheduled_arrival | date:'medium'}}</strong></p>-->
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-4">
+                            <strong>Registration</strong><br>
+                            {{flight.registration_one}}/<br>
+                            {{flight.registration_two}}
+                        </div>
+                        <div class="col-lg-4 text-center">
+                            <strong>Aircraft</strong><br>
+                            {{flight.aircraft_code}}<br>
+                            {{flight.aircraft_name}}
+                        </div>
+                        <div class="col-lg-4 text-right">
+                            <h3>{{flight.departure_airport}} -> {{flight.arrival_airport}}</h3>
+                        </div>
+                    </div>
+                </a>
+                <hr>
+            </div>
+            <div class="text-center">
+                <ul class="pagination" ng-if="!pending">
+                    <li><a href="#">&laquo;</a></li>
+                    <li ng-class="{'active':page.active}" ng-repeat="page in pages"><a href="#/flights/p/{{page}}">{{page+1}}</a></li>
+                    <li><a href="#">&raquo;</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>

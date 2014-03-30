@@ -12,9 +12,47 @@ attributes :id,
            :call_sign,
            :airline,
            :payload,
-           :proper_scheduled_departure,
-           :proper_scheduled_arrival,
-           :proper_departure_time,
-           :proper_arrival_time,
-           :proper_eta,
-           :created_at
+           :created_at,
+           :average_speed,
+           :average_altitude,
+           :state
+
+node :proper_payload do |flight|
+  flight.proper_payload
+end
+
+node :actual_departure do |flight|
+  flight.actual_departure.iso8601
+end
+
+node :actual_arrival do |flight|
+  flight.actual_arrival.iso8601
+end
+
+node :scheduled_departure do |flight|
+  flight.proper_scheduled_departure.iso8601
+end
+
+node :scheduled_arrival do |flight|
+  flight.proper_scheduled_arrival.iso8601
+end
+
+node :departure_time do |flight|
+  flight.proper_departure_time.iso8601
+end
+
+node :arrival_time do |flight|
+  flight.proper_arrival_time.iso8601
+end
+
+node :eta do |flight|
+  flight.proper_eta.iso8601
+end
+
+node :proper_departure_airport do |flight|
+  partial('flights/_airport', :object => flight.proper_departure_airport)
+end
+
+node :proper_arrival_airport do |flight|
+  partial('flights/_airport', :object => flight.proper_arrival_airport)
+end
