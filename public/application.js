@@ -4,6 +4,8 @@ app.config(function($routeProvider) {
     $routeProvider.when('/flights', {templateUrl: '/partials/flights.html', controller: 'FlightsController'});
     $routeProvider.when('/flights/p/:page', {templateUrl: '/partials/flights.html', controller: 'FlightsController'});
     $routeProvider.when('/flights/:id', {templateUrl: '/partials/flight.html', controller: 'FlightController'});
+    $routeProvider.when('/probability', {templateUrl: '/partials/probability.html', controller: 'ProbabilityController'});
+    $routeProvider.when('/prediction', {templateUrl: '/partials/prediction.html', controller: 'PredictionController'});
     $routeProvider.otherwise({redirectTo: '/flights'});
 });
 
@@ -35,7 +37,7 @@ app.controller('FlightsController', [ '$scope', '$http', '$routeParams', functio
     _initialize();
 }]);
 
-app.controller('FlightController', [ '$scope', '$http', '$routeParams', function($scope, $http, $routeParams) {
+app.controller('FlightController', [ '$scope', '$http', '$routeParams', '$timeout', function($scope, $http, $routeParams, $timeout) {
     var _initialize = function() {
         $scope.center = {latitude:46,longitude:-7};
         $scope.zoom = 4;
@@ -76,6 +78,82 @@ app.controller('FlightController', [ '$scope', '$http', '$routeParams', function
             });
             $scope.center = {latitude: $scope.snapshots[0].latitude, longitude: $scope.snapshots[0].longitude};
             $scope.zoom = 6;
+            $scope.pending = false;
+            $timeout(function() {
+               //$scope.$apply()
+            }, 1000);
+        });
+    };
+
+    _initialize();
+}]);
+
+app.controller('ProbabilityController', [ '$scope', '$http', function($scope, $http) {
+    var _initialize = function() {
+        $scope.options = { total: 100, thickness: 60 };
+        $scope.data = [];
+        _airports();
+    };
+
+    var _airports = function() {
+        $http({method: 'GET', url:'/airports.json'}).success(function(data, status, headers, config) {
+            $scope.airports = data;
+        });
+    };
+
+    var _parameters = function() {
+        var parameterString = '?';
+        parameterString += 'arrival_airport=' + ($scope.arrival_airport ? $scope.arrival_airport.code : '') + '&';
+        parameterString += 'departure_airport=' + ($scope.departure_airport ? $scope.departure_airport.code : '');
+        return parameterString;
+    };
+
+    $scope.getProbability = function() {
+        $scope.pending = true;
+        $http({method: 'GET', url:'/probability.json' + _parameters()}).success(function(data, status, headers, config) {
+            var averageOnTime = ((data.on_time / data.size)*100).toFixed(2);
+            var averageLate = ((data.late / data.size)*100).toFixed(2);
+            $scope.data.push({label: 'On Time', color: '#3c763d', value: averageOnTime});
+            $scope.data.push({label: 'Late', color: '#a94442', value: averageLate});
+            $scope.pending = false;
+        });
+    };
+
+    _initialize();
+}]);
+
+app.controller('PredictionController', [ '$scope', '$http', function($scope, $http) {
+    var _initialize = function() {
+        _airports();
+    };
+
+    var _airports = function() {
+        $http({method: 'GET', url:'/airports.json'}).success(function(data, status, headers, config) {
+            $scope.airports = data;
+        });
+    };
+
+    var _parameters = function() {
+        var parameterString = '?'
+        parameterString += 'speed=' + ($scope.speed || '') + '&';
+        parameterString += 'altitude=' + ($scope.altitude || '') + '&';
+        parameterString += 'vertical_speed=' + ($scope.verticalSpeed || '') + '&';
+        parameterString += 'track=' + ($scope.track || '') + '&';
+        parameterString += 'arrival_airport=' + ($scope.arrival_airport ? $scope.arrival_airport.code : '') + '&';
+        parameterString += 'departure_airport=' + ($scope.departure_airport ? $scope.departure_airport.code : '');
+        return parameterString;
+    };
+
+    $scope.predict = function() {
+        $scope.pending = true;
+        $scope.results = [];
+        $http({method: 'GET', url:'/prediction.json' + _parameters()}).success(function(data, status, headers, config) {
+            $scope.state = data.state;
+            angular.forEach(data.result, function(result) {
+                $http({method: 'GET', url:'/flights/' + result[1].id + '.json'}).success(function(data, status, headers, config) {
+                    $scope.results.push(data.flight);
+                })
+            });
             $scope.pending = false;
         });
     };

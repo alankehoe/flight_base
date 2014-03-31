@@ -1,0 +1,122 @@
+<div class="container">
+    <div class="row">
+        <div class="col-lg-12">
+            <h1>Prediction</h1>
+            <div class="row">
+                <div class="col-lg-12">
+                    <form ng-submit="predict()" class="navbar-form navbar-left" role="search">
+                        <div class="form-group">
+                            <p style="margin: 0;">A flight, where departure airport</p>
+                        </div>
+                        <div class="form-group">
+                            <select ng-model="departure_airport" ng-options="airport.code for airport in airports">
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <p style="margin: 0;"> and arrival airport</p>
+                        </div>
+                        <div class="form-group">
+                            <select ng-model="arrival_airport" ng-options="airport.code for airport in airports">
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <p style="margin: 0;"> and average speed</p>
+                        </div>
+                        <div class="form-group">
+                            <input type="number" class="form-control" placeholder="speed" ng-model="speed">
+                        </div>
+                        <div class="form-group">
+                            <p style="margin: 0;"> and average altitude</p>
+                        </div>
+                        <div class="form-group">
+                            <input type="number" class="form-control" placeholder="altitude" ng-model="altitude">
+                        </div>
+                        <div class="form-group">
+                            <p style="margin: 0;"> and average vertical speed</p>
+                        </div>
+                        <div class="form-group">
+                            <input type="number" class="form-control" placeholder="vertical speed" ng-model="verticalSpeed">
+                        </div>
+                        <div class="form-group">
+                            <p style="margin: 0;"> and average track</p>
+                        </div>
+                        <div class="form-group">
+                            <input type="number" class="form-control" placeholder="track" ng-model="track">
+                        </div>
+                        <button type="submit" class="btn btn-primary">Predict</button>
+                    </form>
+                </div>
+            </div>
+            <hr>
+            <div class="text-center" ng-if="pending">
+                <i class="fa fa-spinner fa-spin fa-4x"></i>
+                <p><small>Getting Prediction</small></p>
+            </div>
+            <div class="row" ng-if="state=='on_time'">
+                <div class="col-lg-6 text-center">
+                    <i class="fa fa-thumbs-up fa-5x" style="font-size: 20em;"></i>
+                </div>
+                <div class="col-lg-6 text-center">
+                    <h1>This Flight will be <strong>on time</strong></h1>
+                </div>
+            </div>
+            <div class="row" ng-if="state=='late'">
+                <div class="col-lg-6 text-center">
+                    <i class="fa fa-thumbs-down fa-5x" style="font-size: 20em;"></i>
+                </div>
+                <div class="col-lg-6 text-center">
+                    <h1>This Flight will be <strong>late</strong></h1>
+                </div>
+            </div>
+            <div class="row" ng-if="state=='nothing'">
+                <div class="col-lg-6 text-center">
+                    <i class="fa fa-frown-o fa-5x" style="font-size: 20em;"></i>
+                </div>
+                <div class="col-lg-6 text-center">
+                    <h1>No result for this predicition...</h1>
+                    <h2>Either the result set is too little or the result set size is even</h2>
+                </div>
+            </div>
+            <hr>
+            <div ng-if="state">
+                <h2>Result Set (Nearest Neighbours)</h2>
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Airline</th>
+                        <th>Flight No</th>
+                        <th>Call Sign</th>
+                        <th>Aircraft Code</th>
+                        <th>Aircraft Name</th>
+                        <th>Departure Airport</th>
+                        <th>Arrival Airport</th>
+                        <th>Speed</th>
+                        <th>Altitude</th>
+                        <th>Vertical Speed</th>
+                        <th>Track</th>
+                        <th>Class</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr ng-repeat="result in results">
+                        <td>{{result.id}}</td>
+                        <td>{{result.airline}}</td>
+                        <td>{{result.flight_no}}</td>
+                        <td>{{result.call_sign}}</td>
+                        <td>{{result.aircraft_code}}</td>
+                        <td>{{result.aircraft_name}}</td>
+                        <td>{{result.departure_airport}}</td>
+                        <td>{{result.arrival_airport}}</td>
+                        <td>{{result.average_speed}}</td>
+                        <td>{{result.average_altitude}}</td>
+                        <td>{{result.average_vertical_speed}}</td>
+                        <td>{{result.average_track}}</td>
+                        <td>{{result.state}}</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

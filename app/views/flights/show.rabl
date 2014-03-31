@@ -15,6 +15,8 @@ attributes :id,
            :created_at,
            :average_speed,
            :average_altitude,
+           :average_vertical_speed,
+           :average_track,
            :state
 
 node :proper_payload do |flight|

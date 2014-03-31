@@ -37,8 +37,8 @@ class Flight < ActiveRecord::Base
       result
     end
 
-    def all_filtered
-      Flight.where("flights.scheduled_departure NOT IN (0) AND flights.scheduled_arrival NOT IN (0) AND flights.flight_no IS NOT NULL AND flights.call_sign IS NOT NULL AND flights.aircraft_code IS NOT NULL AND (SELECT COUNT(*) FROM `snapshots` WHERE snapshots.flight_id=flights.flight_radar_id AND snapshots.dodgy IS NULL) > 20")
+    def all_filtered(where='')
+      Flight.where("flights.scheduled_departure NOT IN (0) AND flights.scheduled_arrival NOT IN (0) AND flights.flight_no IS NOT NULL AND flights.call_sign IS NOT NULL AND flights.aircraft_code IS NOT NULL AND #{where} (SELECT COUNT(*) FROM `snapshots` WHERE snapshots.flight_id=flights.flight_radar_id AND snapshots.dodgy IS NULL) > 20")
     end
   end
 
@@ -70,26 +70,46 @@ class Flight < ActiveRecord::Base
     end
   end
 
+  def average_vertical_speed
+    sum = 0
+    proper_snapshots.each do |snapshot|
+      sum += snapshot.vertical_speed
+    end
+    if sum == 0
+      sum
+    else
+      sum / proper_snapshots.size
+    end
+  end
+
+  def average_track
+    sum = 0
+    proper_snapshots.each do |snapshot|
+      sum += snapshot.track
+    end
+    if sum == 0
+      sum
+    else
+      sum / proper_snapshots.size
+    end
+  end
+
   def proper?
     proper_snapshots.size > 15
   end
 
   def on_time?
-    (self.proper_scheduled_arrival-60*3..self.proper_scheduled_arrival+60*3).cover?(self.actual_departure)
+    actual_arrival < self.proper_scheduled_arrival-60*5
   end
 
   def late?
-    actual_arrival > self.proper_scheduled_arrival+60*3
-  end
-
-  def early?
-    actual_arrival < self.proper_scheduled_arrival-60*3
+    actual_arrival > self.proper_scheduled_arrival-60*5
   end
 
   def state
     return 'late' if self.late?
-    return 'early' if self.early?
     return 'on_time' if self.on_time?
+    'late'
   end
 
   def actual_departure
